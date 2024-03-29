@@ -1,0 +1,5 @@
+---
+tabWidth: 4
+htmlWhitespaceSensitivity: 'strict'
+singleQuote: true
+semi: false

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Next
+.next
+
+# Production
+build/
+dist/
+
+# TypeScript
+tsbuildinfo/
+
+# Assets
+*.svg
+*.png
+*.ico
+*.ttf
+
+# Ignore files (Prettier has trouble parsing files without extension)
+.eslintignore
+.gitignore
+.prettierignore
+
+
+# RC files (Prettier has trouble parsing files without extension)
+.npmrc
+.nvmrc
+
+# macOS
+.DS_Store
