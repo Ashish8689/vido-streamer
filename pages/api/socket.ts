@@ -13,6 +13,7 @@ export default function socketHandler(
         console.log('Socket.io instance is available')
     } else {
         const io = new Server((req.socket as any).server)
+
         ;(req.socket as any).server.io = io
 
         io.on('connection', (socket) => {
