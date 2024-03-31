@@ -1,16 +1,17 @@
 import { useRouter } from 'next/router'
-import React, { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWebSocketConnector } from '../context/SocketProvider'
 import Peer from 'peerjs'
+import { usePeerReturn } from './hooks.interface'
 
-const usePeer = () => {
+const usePeer = (): usePeerReturn => {
     const [peer, setPeer] = useState<Peer | null>(null)
-    const [peerId, setPeerId] = useState<string | null>(null)
+    const [peerId, setPeerId] = useState<string>('')
     const isPeerSet = useRef(false)
     const roomId = useRouter().query.roomId as string
     const { socket } = useWebSocketConnector()
 
-    const initializePeer = async () => {
+    const initializePeer = useCallback(async () => {
         // wait for peerjs to be loaded
         // way to import package dynamically in useEffect react for SSR
         const myPeer = new (await import('peerjs')).default()
@@ -21,13 +22,15 @@ const usePeer = () => {
             setPeerId(id)
             socket?.emit('join-room', roomId, id)
         })
-    }
+    }, [roomId, socket])
 
     useEffect(() => {
-        if (isPeerSet.current || !roomId || !socket) return
+        if (isPeerSet.current || !roomId || !socket) {
+            return
+        }
         isPeerSet.current = true
         initializePeer()
-    }, [roomId, socket])
+    }, [roomId, socket, initializePeer])
 
     return { peer, peerId }
 }

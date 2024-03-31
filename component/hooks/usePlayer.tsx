@@ -1,43 +1,48 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useWebSocketConnector } from '../context/SocketProvider'
 import { useRouter } from 'next/router'
+import { Player, UsePlayer, UsePlayerReturn } from './hooks.interface'
 
-const usePlayer = (myPlayerId, roomId, peer) => {
+const usePlayer = ({
+    peerId: currentUserId,
+    roomId,
+    peer,
+}: UsePlayer): UsePlayerReturn => {
     const router = useRouter()
     const { socket } = useWebSocketConnector()
-    const [player, setPlayer] = useState({})
+    const [player, setPlayer] = useState<Player>({})
 
-    const leaveRoom = () => {
-        socket?.emit('leave-room', roomId, myPlayerId)
-        console.log('leaving room', roomId, myPlayerId)
-        peer.disconnect()
+    const leaveRoom = (): void => {
+        socket?.emit('leave-room', roomId, currentUserId)
+        console.log('leaving room', roomId, currentUserId)
+        peer?.disconnect()
         router.push('/')
     }
 
-    const toggleAudio = () => {
-        console.log('toggling audio for player', myPlayerId)
+    const toggleAudio = (): void => {
+        console.log('toggling audio for player', currentUserId)
         setPlayer((prev) => ({
             ...prev,
-            [myPlayerId]: {
-                ...player[myPlayerId],
-                muted: !player[myPlayerId].muted,
+            [currentUserId]: {
+                ...player[currentUserId],
+                muted: !player[currentUserId].muted,
             },
         }))
 
-        socket?.emit('toggle-audio', roomId, myPlayerId)
+        socket?.emit('toggle-audio', roomId, currentUserId)
     }
 
-    const toggleVideo = () => {
-        console.log('toggling video for player', myPlayerId)
+    const toggleVideo = (): void => {
+        console.log('toggling video for player', currentUserId)
         setPlayer((prev) => ({
             ...prev,
-            [myPlayerId]: {
-                ...player[myPlayerId],
-                playing: !player[myPlayerId].playing,
+            [currentUserId]: {
+                ...player[currentUserId],
+                playing: !player[currentUserId].playing,
             },
         }))
 
-        socket?.emit('toggle-video', roomId, myPlayerId)
+        socket?.emit('toggle-video', roomId, currentUserId)
     }
 
     return { player, setPlayer, toggleAudio, toggleVideo, leaveRoom }

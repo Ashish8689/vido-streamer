@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useMediaStreamReturn } from './hooks.interface'
 
-const useMediaStream = () => {
-    const [mediaStream, setMediaStream] = useState<MediaStream | string>('')
+const useMediaStream = (): useMediaStreamReturn => {
+    const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
     const isStreamInitialized = useRef(false)
 
-    const getMediaStream = async () => {
+    const getMediaStream = async (): Promise<void> => {
         try {
             const response = await navigator.mediaDevices.getUserMedia({
                 video: true,

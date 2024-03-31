@@ -45,7 +45,7 @@ export default function Home(): JSX.Element {
 
                     <div className="flex items-center mt-10">
                         <button
-                            className="flex items-center bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
+                            className="flex items-center bg-blue-500 text-white px-3 py-2 rounded-md cursor-pointer hover:bg-blue-600"
                             onClick={createRoom}
                         >
                             <Image

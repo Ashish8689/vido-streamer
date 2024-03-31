@@ -3,83 +3,99 @@ import { useWebSocketConnector } from '@/component/context/SocketProvider'
 import useMediaStream from '@/component/hooks/useMediaStream'
 import usePeer from '@/component/hooks/usePeer'
 import usePlayer from '@/component/hooks/usePlayer'
-import { log } from 'console'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
-const Room = () => {
-    const { socket } = useWebSocketConnector()
+const Room: React.FC = () => {
     const roomId = useRouter().query.roomId as string
-    const { peer, peerId } = usePeer()
+    const { socket } = useWebSocketConnector()
     const { stream } = useMediaStream()
+    const { peer, peerId } = usePeer()
     const { player, setPlayer, toggleAudio, toggleVideo, leaveRoom } =
-        usePlayer(peerId, roomId, peer)
+        usePlayer({ peerId, roomId, peer })
 
     const [user, setUser] = useState({})
 
-    const handleUserConnected = (newUserId) => {
-        console.log('user connected in a room with id', newUserId)
+    const handleUserConnected = useCallback(
+        (newUserId: string): void => {
+            console.log('user connected in a room with id', newUserId)
 
-        const call = peer?.call(newUserId, stream)
+            const call = peer?.call(newUserId, stream)
 
-        call.on('stream', (incomingUserVideoStream) => {
-            console.log('incoming user video stream', {
-                incomingUserVideoStream,
-                newUserId,
+            call.on('stream', (incomingUserVideoStream) => {
+                console.log('incoming user video stream', {
+                    incomingUserVideoStream,
+                    newUserId,
+                })
+                setPlayer((prev) => ({
+                    ...prev,
+                    [newUserId]: {
+                        url: incomingUserVideoStream,
+                        muted: true,
+                        playing: true,
+                    },
+                }))
+
+                setUser((prev) => ({
+                    ...prev,
+                    [newUserId]: call,
+                }))
             })
+        },
+        [peer, stream, setPlayer, setUser],
+    )
+
+    const handleToggleAudio = useCallback(
+        (userId: string): void => {
+            console.log('toggling audio for player', userId)
             setPlayer((prev) => ({
                 ...prev,
-                [newUserId]: {
-                    url: incomingUserVideoStream,
-                    muted: true,
-                    playing: true,
-                },
+                [userId]: { ...prev[userId], muted: !prev[userId].muted },
             }))
+        },
+        [setPlayer],
+    )
 
-            setUser((prev) => ({
+    const handleToggleVideo = useCallback(
+        (userId: string): void => {
+            console.log('toggling video for player', userId)
+            setPlayer((prev) => ({
                 ...prev,
-                [newUserId]: call,
+                [userId]: { ...prev[userId], playing: !prev[userId].playing },
             }))
-        })
-    }
+        },
+        [setPlayer],
+    )
 
-    const handleToggleAudio = (userId) => {
-        console.log('toggling audio for player', userId)
-        setPlayer((prev) => ({
-            ...prev,
-            [userId]: { ...prev[userId], muted: !prev[userId].muted },
-        }))
-    }
+    const handleUserLeave = useCallback(
+        (userId: string): void => {
+            console.log('User have leaved', userId)
+            user[userId]?.close()
 
-    const handleToggleVideo = (userId) => {
-        console.log('toggling video for player', userId)
-        setPlayer((prev) => ({
-            ...prev,
-            [userId]: { ...prev[userId], playing: !prev[userId].playing },
-        }))
-    }
+            setPlayer((prev) => {
+                delete prev[userId]
 
-    const handleUserLeave = (userId) => {
-        console.log('User have leaved', userId)
-        user[userId]?.close()
-
-        setPlayer((prev) => {
-            delete prev[userId]
-            return { ...prev }
-        })
-    }
+                return { ...prev }
+            })
+        },
+        [user, setPlayer],
+    )
 
     useEffect(() => {
-        if (!socket || !stream) return
+        if (!socket || !stream) {
+            return
+        }
         socket?.on('user-connected', handleUserConnected)
 
         return () => {
             socket?.off('user-connected', handleUserConnected)
         }
-    }, [socket, stream])
+    }, [socket, stream, handleUserConnected])
 
     useEffect(() => {
-        if (!socket) return
+        if (!socket) {
+            return
+        }
         socket?.on('toggle-audio', handleToggleAudio)
         socket?.on('toggle-video', handleToggleVideo)
         socket?.on('leave-room', handleUserLeave)
@@ -98,7 +114,10 @@ const Room = () => {
     ])
 
     useEffect(() => {
-        if (!peer || !stream) return
+        if (!peer || !stream) {
+            return
+        }
+
         peer.on('call', (call) => {
             const { peer: callerId } = call
             call.answer(stream)
@@ -122,10 +141,13 @@ const Room = () => {
                 }))
             })
         })
-    }, [peer, stream])
+    }, [peer, stream, setPlayer])
 
+    // Setting Current User Stream
     useEffect(() => {
-        if (!stream || !peerId) return
+        if (!stream || !peerId) {
+            return
+        }
         console.log('setting my stream', stream)
         setPlayer((prev) => ({
             ...prev,
@@ -135,18 +157,18 @@ const Room = () => {
                 playing: true,
             },
         }))
-    }, [stream, peerId])
+    }, [stream, peerId, setPlayer])
 
     return Object.entries(player).map(([key, value]) => (
         <Player
             key={key}
-            playerId={key}
-            url={value.url}
             muted={value.muted}
+            playerId={key}
             playing={value.playing}
-            onToggleVideo={toggleVideo}
-            onToggleAudio={toggleAudio}
+            url={value.url}
             onLeaveRoom={leaveRoom}
+            onToggleAudio={toggleAudio}
+            onToggleVideo={toggleVideo}
         />
     ))
 }
