@@ -1,7 +1,5 @@
-import { ReactNode } from "react";
-import { Socket } from "socket.io-client";
+import { ReactNode } from 'react'
 
 export interface SocketProviderProps {
     children: ReactNode
 }
-

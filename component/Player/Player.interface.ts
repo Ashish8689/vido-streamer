@@ -1,5 +1,3 @@
-import Peer from 'peerjs'
-
 export interface PlayerProps {
     url: MediaStream | string
     playerId: string

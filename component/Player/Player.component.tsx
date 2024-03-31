@@ -11,15 +11,15 @@ const Player = ({
     onToggleAudio,
     onToggleVideo,
     onLeaveRoom,
-}: PlayerProps) => {
+}: PlayerProps): JSX.Element => {
     return (
         <>
-            <ReactPlayer url={url} playing={playing} muted={muted} />
+            <ReactPlayer muted={muted} playing={playing} url={url} />
             <MediaController
-                onChangeVideo={onToggleVideo}
-                onChangeAudio={onToggleAudio}
-                playing={playing}
                 muted={muted}
+                playing={playing}
+                onChangeAudio={onToggleAudio}
+                onChangeVideo={onToggleVideo}
                 onLeaveRoom={onLeaveRoom}
             />
         </>

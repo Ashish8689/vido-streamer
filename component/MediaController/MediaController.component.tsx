@@ -7,7 +7,7 @@ const MediaController = ({
     onChangeVideo,
     onChangeAudio,
     onLeaveRoom,
-}: MediaControllerProps) => {
+}: MediaControllerProps): JSX.Element => {
     return (
         <div>
             <button onClick={onChangeVideo}>
