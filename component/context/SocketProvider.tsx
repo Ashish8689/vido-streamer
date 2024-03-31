@@ -14,10 +14,10 @@ export const WebSocketProvider = ({ children }: SocketProviderProps) => {
         setSocket(connection)
     }, [])
 
-    // socket?.on('connect_error', async (err) => {
-    //     console.log('Error establishing socket', err)
-    //     await fetch('/api/socket')
-    // })
+    socket?.on('connect_error', async (err) => {
+        console.log('Error establishing socket', err)
+        await fetch('/api/socket')
+    })
 
     return (
         <WebSocketContext.Provider value={{ socket }}>
