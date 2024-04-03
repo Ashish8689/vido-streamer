@@ -1,8 +1,8 @@
-import Player from '@/component/Player/Player.component'
-import { useWebSocketConnector } from '@/component/context/SocketProvider'
-import useMediaStream from '@/component/hooks/useMediaStream'
-import usePeer from '@/component/hooks/usePeer'
-import usePlayer from '@/component/hooks/usePlayer'
+import Player from '@/components/Player/Player.component'
+import { useWebSocketConnector } from '@/components/context/SocketProvider'
+import useMediaStream from '@/components/hooks/useMediaStream'
+import usePeer from '@/components/hooks/usePeer'
+import usePlayer from '@/components/hooks/usePlayer'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 
@@ -159,18 +159,22 @@ const Room: React.FC = () => {
         }))
     }, [stream, peerId, setPlayer])
 
-    return Object.entries(player).map(([key, value]) => (
-        <Player
-            key={key}
-            muted={value.muted}
-            playerId={key}
-            playing={value.playing}
-            url={value.url}
-            onLeaveRoom={leaveRoom}
-            onToggleAudio={toggleAudio}
-            onToggleVideo={toggleVideo}
-        />
-    ))
+    return (
+        <div className="bg-gray-950 h-screen">
+            {Object.entries(player).map(([key, value]) => (
+                <Player
+                    key={key}
+                    muted={value.muted}
+                    playerId={key}
+                    playing={value.playing}
+                    url={value.url}
+                    onLeaveRoom={leaveRoom}
+                    onToggleAudio={toggleAudio}
+                    onToggleVideo={toggleVideo}
+                />
+            ))}
+        </div>
+    )
 }
 
 export default Room

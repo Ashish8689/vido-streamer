@@ -1,7 +1,7 @@
 import Peer from 'peerjs'
 
 export interface PlayerObject {
-    url: string
+    url: MediaStream
     muted: boolean
     playing: boolean
 }

@@ -14,7 +14,15 @@ const Player = ({
 }: PlayerProps): JSX.Element => {
     return (
         <>
-            <ReactPlayer muted={muted} playing={playing} url={url} />
+            <div className="h-[90vh] w-full flex items-center">
+                <ReactPlayer
+                    height="90%"
+                    muted={muted}
+                    playing={playing}
+                    url={url}
+                    width="100%"
+                />
+            </div>
             <MediaController
                 muted={muted}
                 playing={playing}
