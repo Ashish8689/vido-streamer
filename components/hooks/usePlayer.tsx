@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { Player, UsePlayer, UsePlayerReturn } from './hooks.interface'
 
 const usePlayer = ({
-    peerId: currentUserId,
+    currentUserPeerId,
     roomId,
     peer,
 }: UsePlayer): UsePlayerReturn => {
@@ -13,36 +13,36 @@ const usePlayer = ({
     const [player, setPlayer] = useState<Player>({})
 
     const leaveRoom = (): void => {
-        socket?.emit('leave-room', roomId, currentUserId)
-        console.log('leaving room', roomId, currentUserId)
+        socket?.emit('leave-room', roomId, currentUserPeerId)
+        console.log('leaving room', roomId, currentUserPeerId)
         peer?.disconnect()
         router.push('/')
     }
 
     const toggleAudio = (): void => {
-        console.log('toggling audio for player', currentUserId)
+        console.log('toggling audio for player', currentUserPeerId)
         setPlayer((prev) => ({
             ...prev,
-            [currentUserId]: {
-                ...player[currentUserId],
-                muted: !player[currentUserId].muted,
+            [currentUserPeerId]: {
+                ...player[currentUserPeerId],
+                muted: !player[currentUserPeerId].muted,
             },
         }))
 
-        socket?.emit('toggle-audio', roomId, currentUserId)
+        socket?.emit('toggle-audio', roomId, currentUserPeerId)
     }
 
     const toggleVideo = (): void => {
-        console.log('toggling video for player', currentUserId)
+        console.log('toggling video for player', currentUserPeerId)
         setPlayer((prev) => ({
             ...prev,
-            [currentUserId]: {
-                ...player[currentUserId],
-                playing: !player[currentUserId].playing,
+            [currentUserPeerId]: {
+                ...player[currentUserPeerId],
+                playing: !player[currentUserPeerId].playing,
             },
         }))
 
-        socket?.emit('toggle-video', roomId, currentUserId)
+        socket?.emit('toggle-video', roomId, currentUserPeerId)
     }
 
     return { player, setPlayer, toggleAudio, toggleVideo, leaveRoom }

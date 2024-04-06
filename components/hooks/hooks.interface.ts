@@ -11,7 +11,7 @@ export interface Player {
 }
 
 export interface UsePlayer {
-    peerId: string
+    currentUserPeerId: string
     roomId: string
     peer: Peer | null
 }
@@ -26,7 +26,7 @@ export interface UsePlayerReturn {
 
 export interface usePeerReturn {
     peer: Peer | null
-    peerId: string
+    currentUserPeerId: string
 }
 export interface useMediaStreamReturn {
     stream: MediaStream | null

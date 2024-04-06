@@ -10,9 +10,9 @@ const Room: React.FC = () => {
     const roomId = useRouter().query.roomId as string
     const { socket } = useWebSocketConnector()
     const { stream } = useMediaStream()
-    const { peer, peerId } = usePeer()
+    const { peer, currentUserPeerId } = usePeer()
     const { player, setPlayer, toggleAudio, toggleVideo, leaveRoom } =
-        usePlayer({ peerId, roomId, peer })
+        usePlayer({ currentUserPeerId, roomId, peer })
 
     const [user, setUser] = useState({})
 
@@ -145,24 +145,25 @@ const Room: React.FC = () => {
 
     // Setting Current User Stream
     useEffect(() => {
-        if (!stream || !peerId) {
+        if (!stream || !currentUserPeerId) {
             return
         }
         console.log('setting my stream', stream)
         setPlayer((prev) => ({
             ...prev,
-            [peerId]: {
+            [currentUserPeerId]: {
                 url: stream,
                 muted: true,
                 playing: true,
             },
         }))
-    }, [stream, peerId, setPlayer])
+    }, [stream, currentUserPeerId, setPlayer])
 
     return (
         <div className="bg-gray-950 h-screen">
             {Object.entries(player).map(([key, value]) => (
                 <Player
+                    currentUserPeerId={currentUserPeerId}
                     key={key}
                     muted={value.muted}
                     playerId={key}

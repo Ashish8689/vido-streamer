@@ -1,4 +1,5 @@
 export interface PlayerProps {
+    currentUserPeerId: string
     url: MediaStream | string
     playerId: string
     playing: boolean

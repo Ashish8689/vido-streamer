@@ -6,7 +6,7 @@ import { usePeerReturn } from './hooks.interface'
 
 const usePeer = (): usePeerReturn => {
     const [peer, setPeer] = useState<Peer | null>(null)
-    const [peerId, setPeerId] = useState<string>('')
+    const [currentUserPeerId, setCurrentUserPeerId] = useState<string>('')
     const isPeerSet = useRef(false)
     const roomId = useRouter().query.roomId as string
     const { socket } = useWebSocketConnector()
@@ -19,7 +19,7 @@ const usePeer = (): usePeerReturn => {
 
         myPeer.on('open', (id) => {
             console.log('My peer ID is: ' + id)
-            setPeerId(id)
+            setCurrentUserPeerId(id)
             socket?.emit('join-room', roomId, id)
         })
     }, [roomId, socket])
@@ -32,7 +32,7 @@ const usePeer = (): usePeerReturn => {
         initializePeer()
     }, [roomId, socket, initializePeer])
 
-    return { peer, peerId }
+    return { peer, currentUserPeerId }
 }
 
 export default usePeer
