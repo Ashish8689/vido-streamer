@@ -4,7 +4,9 @@ import { SocketProviderProps } from './SocketProvider.interface'
 
 export const WebSocketContext = createContext<{ socket?: Socket }>({})
 
-export const WebSocketProvider = ({ children }: SocketProviderProps) => {
+export const WebSocketProvider: React.FC<SocketProviderProps> = ({
+    children,
+}: SocketProviderProps) => {
     const [socket, setSocket] = useState<Socket>()
 
     useEffect(() => {
@@ -26,4 +28,5 @@ export const WebSocketProvider = ({ children }: SocketProviderProps) => {
     )
 }
 
-export const useWebSocketConnector = () => useContext(WebSocketContext)
+export const useWebSocketConnector = (): { socket?: Socket } =>
+    useContext(WebSocketContext)
