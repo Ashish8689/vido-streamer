@@ -5,7 +5,11 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'cdn-icons-png.freepik.com',
+                hostname: 'cdn.icon-icons.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'icons.veryicon.com',
             },
         ],
     },

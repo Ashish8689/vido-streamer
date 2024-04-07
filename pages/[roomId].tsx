@@ -4,6 +4,7 @@ import useMediaStream from '@/components/hooks/useMediaStream'
 import usePeer from '@/components/hooks/usePeer'
 import usePlayer from '@/components/hooks/usePlayer'
 import { useRouter } from 'next/router'
+import { MediaConnection } from 'peerjs'
 import React, { useCallback, useEffect, useState } from 'react'
 
 const Room: React.FC = () => {
@@ -11,18 +12,28 @@ const Room: React.FC = () => {
     const { socket } = useWebSocketConnector()
     const { stream } = useMediaStream()
     const { peer, currentUserPeerId } = usePeer()
-    const { player, setPlayer, toggleAudio, toggleVideo, leaveRoom } =
-        usePlayer({ currentUserPeerId, roomId, peer })
+    const {
+        primaryPlayer,
+        secondaryPlayers,
+        setPlayer,
+        toggleAudio,
+        toggleVideo,
+        leaveRoom,
+    } = usePlayer({ currentUserPeerId, roomId, peer })
 
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState<Record<string, MediaConnection>>({})
 
     const handleUserConnected = useCallback(
         (newUserId: string): void => {
             console.log('user connected in a room with id', newUserId)
 
+            if (!stream) {
+                return
+            }
+
             const call = peer?.call(newUserId, stream)
 
-            call.on('stream', (incomingUserVideoStream) => {
+            call?.on('stream', (incomingUserVideoStream) => {
                 console.log('incoming user video stream', {
                     incomingUserVideoStream,
                     newUserId,
@@ -33,6 +44,7 @@ const Room: React.FC = () => {
                         url: incomingUserVideoStream,
                         muted: true,
                         playing: true,
+                        userId: newUserId,
                     },
                 }))
 
@@ -66,6 +78,8 @@ const Room: React.FC = () => {
         },
         [setPlayer],
     )
+
+    console.log(user)
 
     const handleUserLeave = useCallback(
         (userId: string): void => {
@@ -133,6 +147,7 @@ const Room: React.FC = () => {
                         url: incomingUserVideoStream,
                         muted: true,
                         playing: true,
+                        userId: callerId,
                     },
                 }))
                 setUser((prev) => ({
@@ -155,25 +170,24 @@ const Room: React.FC = () => {
                 url: stream,
                 muted: true,
                 playing: true,
+                userId: currentUserPeerId,
             },
         }))
     }, [stream, currentUserPeerId, setPlayer])
 
+    if (!primaryPlayer) {
+        return <div>Loading...</div>
+    }
+
     return (
         <div className="bg-gray-950 h-screen">
-            {Object.entries(player).map(([key, value]) => (
-                <Player
-                    currentUserPeerId={currentUserPeerId}
-                    key={key}
-                    muted={value.muted}
-                    playerId={key}
-                    playing={value.playing}
-                    url={value.url}
-                    onLeaveRoom={leaveRoom}
-                    onToggleAudio={toggleAudio}
-                    onToggleVideo={toggleVideo}
-                />
-            ))}
+            <Player
+                primaryPlayer={primaryPlayer}
+                secondaryPlayers={secondaryPlayers}
+                onLeaveRoom={leaveRoom}
+                onToggleAudio={toggleAudio}
+                onToggleVideo={toggleVideo}
+            />
         </div>
     )
 }

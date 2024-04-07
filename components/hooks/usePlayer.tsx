@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useWebSocketConnector } from '../context/SocketProvider'
 import { useRouter } from 'next/router'
 import { Player, UsePlayer, UsePlayerReturn } from './hooks.interface'
@@ -11,6 +11,15 @@ const usePlayer = ({
     const router = useRouter()
     const { socket } = useWebSocketConnector()
     const [player, setPlayer] = useState<Player>({})
+
+    const { primaryPlayer, secondaryPlayers } = useMemo(() => {
+        return {
+            primaryPlayer: player[currentUserPeerId],
+            secondaryPlayers: Object.keys(player)
+                .filter((playerId) => playerId !== currentUserPeerId)
+                .map((playerId) => player[playerId]),
+        }
+    }, [player, currentUserPeerId])
 
     const leaveRoom = (): void => {
         socket?.emit('leave-room', roomId, currentUserPeerId)
@@ -45,7 +54,17 @@ const usePlayer = ({
         socket?.emit('toggle-video', roomId, currentUserPeerId)
     }
 
-    return { player, setPlayer, toggleAudio, toggleVideo, leaveRoom }
+    console.log({ player, primaryPlayer, secondaryPlayers })
+
+    return {
+        player,
+        primaryPlayer,
+        secondaryPlayers,
+        setPlayer,
+        toggleAudio,
+        toggleVideo,
+        leaveRoom,
+    }
 }
 
 export default usePlayer

@@ -4,6 +4,7 @@ export interface PlayerObject {
     url: MediaStream
     muted: boolean
     playing: boolean
+    userId: string
 }
 
 export interface Player {
@@ -18,6 +19,8 @@ export interface UsePlayer {
 
 export interface UsePlayerReturn {
     player: Player
+    primaryPlayer: PlayerObject
+    secondaryPlayers: PlayerObject[]
     setPlayer: React.Dispatch<React.SetStateAction<Player>>
     toggleAudio: () => void
     toggleVideo: () => void
